@@ -8,6 +8,8 @@
 #include "Engine/EngineTypes.h"
 #include "OpenXRCore.h"
 #include "OpenXRHMD.h"
+#include "IHandTracker.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "OpenXRExpansionFunctionLibrary.Generated.h"
 
 /*UENUM(Blueprintable)
@@ -72,6 +74,33 @@ public:
 		return nullptr;
 	}
 
+
+	// Returns if the current system supports hand tracking or not
+	UFUNCTION(BlueprintPure, Category = "VRExpansionFunctions|OpenXR", meta = (bIgnoreSelf = "true", WorldContext = "WorldContextObject"))
+	static bool XRSystemSupportsHandTracking(UObject* WorldContextObject, const EControllerHand Hand)
+	{
+		FName HandTrackerName("OpenXRHandTracking");
+		TArray<IHandTracker*> HandTrackers = IModularFeatures::Get().GetModularFeatureImplementations<IHandTracker>(IHandTracker::GetModularFeatureName());
+		IHandTracker* HandTracker = nullptr;
+		for (auto Itr : HandTrackers)
+		{
+			if (Itr->GetHandTrackerDeviceTypeName() == HandTrackerName)
+			{
+				HandTracker = Itr;
+				break;
+			}
+		}
+
+		if (HandTracker && HandTracker->IsHandTrackingStateValid())
+		{
+			return true;
+		}
+
+		// This data is pre-formed to be world space, should manually pull it in instead probably so that we can avoid the extra steps.
+		/*FXRMotionControllerData ControllerData;
+		UHeadMountedDisplayFunctionLibrary::GetMotionControllerData(WorldContextObject, Hand, ControllerData);
+		return ControllerData.DeviceVisualType == EXRVisualType::Hand && ControllerData.bValid;*/
+	}
 
 	// Get a list of all currently tracked devices and their types, index in the array is their device index
 	UFUNCTION(BlueprintPure, Category = "VRExpansionFunctions|OpenXR", meta = (bIgnoreSelf = "true"))

@@ -19,6 +19,11 @@
 			"Name": "OpenXRExpansionPlugin",
 			"Type": "Runtime",
 			"LoadingPhase": "PostConfigInit"
+		},
+		{
+			"Name": "OpenXRExpansionPluginEditor",
+			"Type": "UnCookedOnly",
+			"LoadingPhase": "PreDefault"
 		}
 	],
 	"Plugins": [
